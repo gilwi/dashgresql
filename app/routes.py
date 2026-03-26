@@ -1,4 +1,4 @@
-# from werkzeug.urls import iri_to_uri
+from functools import wraps
 from urllib.parse import urlparse
 
 from flask import flash, redirect, render_template, request, url_for
@@ -7,6 +7,27 @@ from flask_login import current_user, login_required, login_user, logout_user
 from app import app, db
 from app.forms import LoginForm, RegistrationForm
 from app.models import User
+
+
+def no_users_exist():
+    """Returns True if the database has zero users."""
+    return User.query.count() == 0
+
+
+def setup_required(f):
+    """
+    Use this decorator on routes that should only be accessible
+    when NO user exists yet (i.e. first-time setup).
+    If a user already exists, redirect to login.
+    """
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not no_users_exist():
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+
+    return decorated
 
 
 @app.route("/")
@@ -28,6 +49,8 @@ def index():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    if no_users_exist():
+        return redirect(url_for("setup"))
     if current_user.is_authenticated:
         return redirect(url_for("index"))
     form = LoginForm()
@@ -48,6 +71,21 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for("index"))
+
+
+@app.route("/setup", methods=["GET", "POST"])
+@setup_required  # blocks access once a user exists
+def setup():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data, email=form.email.data)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        flash("Congratulations, you are now a registered user!")
+        return redirect(url_for("login"))
+
+    return render_template("setup.html", title="Setup", form=form)
 
 
 @app.route("/register", methods=["GET", "POST"])
