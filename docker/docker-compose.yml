@@ -1,0 +1,101 @@
+services:
+  # ─────────────────────────────────────────────
+  # DB 1 — E-commerce store
+  # ─────────────────────────────────────────────
+  db_ecommerce:
+    image: postgres:16-alpine
+    container_name: pg_ecommerce
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ecommerce
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg_ecommerce_data:/var/lib/postgresql/data
+      - ./init/ecommerce:/docker-entrypoint-initdb.d
+    networks:
+      - pg_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d ecommerce"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────
+  # DB 2 — HR / employees
+  # ─────────────────────────────────────────────
+  db_hr:
+    image: postgres:16-alpine
+    container_name: pg_hr
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: hr
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+    ports:
+      - "5434:5432"
+    volumes:
+      - pg_hr_data:/var/lib/postgresql/data
+      - ./init/hr:/docker-entrypoint-initdb.d
+    networks:
+      - pg_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d hr"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────
+  # DB 3 — Analytics / events
+  # ─────────────────────────────────────────────
+  db_analytics:
+    image: postgres:16-alpine
+    container_name: pg_analytics
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: analytics
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+    ports:
+      - "5435:5432"
+    volumes:
+      - pg_analytics_data:/var/lib/postgresql/data
+      - ./init/analytics:/docker-entrypoint-initdb.d
+    networks:
+      - pg_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d analytics"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────
+  # pgAdmin — optional web UI to inspect DBs
+  # ─────────────────────────────────────────────
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_LISTEN_ADDRESS: 0.0.0.0
+      PGADMIN_DEFAULT_EMAIL: admin@local.dev
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    depends_on:
+      - db_ecommerce
+      - db_hr
+      - db_analytics
+    networks:
+      - pg_network
+
+volumes:
+  pg_ecommerce_data:
+  pg_hr_data:
+  pg_analytics_data:
+
+networks:
+  pg_network:
+    driver: bridge
