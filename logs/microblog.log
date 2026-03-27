@@ -1,0 +1,88 @@
+2026-03-27 01:15:27,585 ERROR: Exception on / [GET] [in /home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/lwi/git/gilwi/dashgresql/app/main/routes.py", line 56, in index
+    return render_template("index.html", title="Home Page", posts=posts)
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/flask/templating.py", line 151, in render_template
+    return _render(app, template, context)
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/flask/templating.py", line 132, in _render
+    rv = template.render(context)
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/lwi/git/gilwi/dashgresql/app/templates/index.html", line 1, in top-level template code
+    {% extends "base.html" %} {% block content %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lwi/git/gilwi/dashgresql/app/templates/base.html", line 16, in top-level template code
+    <a href="{{ url_for('user', username=current_user.username) }}"
+    ^^^^^^^^^^^^^
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/flask/app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/flask/app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+        endpoint,
+    ...<3 lines>...
+        force_external=_external,
+    )
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/werkzeug/routing/map.py", line 901, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'user' with values ['username']. Did you mean 'main.user' instead?
+2026-03-27 01:15:52,144 INFO: Microblog startup [in /home/lwi/git/gilwi/dashgresql/app/__init__.py:55]
+2026-03-27 01:15:58,466 ERROR: Exception on / [GET] [in /home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/lwi/git/gilwi/dashgresql/app/main/routes.py", line 56, in index
+    return render_template("index.html", title="Home Page", posts=posts)
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/flask/templating.py", line 151, in render_template
+    return _render(app, template, context)
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/flask/templating.py", line 132, in _render
+    rv = template.render(context)
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/lwi/git/gilwi/dashgresql/app/templates/index.html", line 1, in top-level template code
+    {% extends "base.html" %} {% block content %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lwi/git/gilwi/dashgresql/app/templates/base.html", line 19, in top-level template code
+    <a href="{{ url_for('logout') }}">Logout</a>
+    ^^^^^^^^^^^^^
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/flask/app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/flask/app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+        endpoint,
+    ...<3 lines>...
+        force_external=_external,
+    )
+  File "/home/lwi/git/gilwi/dashgresql/.venv/lib/python3.14/site-packages/werkzeug/routing/map.py", line 901, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'logout'. Did you mean 'main.logout' instead?
+2026-03-27 01:16:24,793 INFO: Microblog startup [in /home/lwi/git/gilwi/dashgresql/app/__init__.py:55]
