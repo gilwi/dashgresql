@@ -2,6 +2,7 @@ import logging
 import os
 from logging.handlers import RotatingFileHandler, SMTPHandler
 
+import click
 from flask import Flask
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -30,6 +31,36 @@ def create_app(config_class=Config):
     from app.main import bp as main_bp
 
     app.register_blueprint(main_bp)
+
+    # --- Custom Command: Reset Database ---
+    @app.cli.command("reset-db")
+    def reset_db():
+        """Drop all tables and recreate them."""
+        # Safety check: Ask the user for confirmation
+        if click.confirm(
+            "This will delete all data. Are you sure you want to reset the database?"
+        ):
+            db.drop_all()
+            db.create_all()
+            click.echo("Database has been reset.")
+
+    # --------------------------------------
+    # --- Custom Command: Create test User ---
+    @app.cli.command("create-user")
+    @click.argument("name", default="lwi")
+    def create_user(name):
+        """Create a new user example."""
+        # You can access your database models here because
+        # 'db' and 'models' are imported in this file.
+        from app import models  # Local import to avoid circular issues
+
+        print(f"Creating user: {name}")
+        u = models.User(username=name)
+        u.set_password("test")
+        db.session.add(u)
+        db.session.commit()
+
+    # -----------------------------------------
 
     if not app.debug and not app.testing:
         if app.config["LOG_TO_STDOUT"]:
