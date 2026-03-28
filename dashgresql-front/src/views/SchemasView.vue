@@ -121,12 +121,12 @@ const rightPanelView = computed(() => {
       <nav
         class="flex gap-2 text-[0.65rem] font-bold text-on-surface-variant mb-2 uppercase tracking-[0.15em]"
       >
-        <span>Production Cluster</span>
+        <span></span>
         <span class="text-outline-variant opacity-40">/</span>
         <span class="text-primary">Schemas</span>
       </nav>
       <div class="flex items-end justify-between">
-        <h2 class="text-4xl font-black text-on-surface tracking-tighter">Database Blueprint</h2>
+        <h2 class="text-4xl font-black text-on-surface tracking-tighter">Schemas Detailed</h2>
 
         <!-- Database picker -->
         <div class="flex items-center gap-3">
