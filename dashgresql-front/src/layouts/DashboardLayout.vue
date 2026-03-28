@@ -25,13 +25,11 @@ const handleLogout = async () => {
           <span class="material-symbols-outlined">database</span>
         </div>
         <div>
-          <h2 class="text-primary font-black tracking-tight leading-none text-sm">
-            Production Cluster
-          </h2>
+          <h2 class="text-primary font-black tracking-tight leading-none text-sm">dashgresql</h2>
           <p
             class="text-[0.7rem] text-on-surface-variant font-medium mt-1 uppercase tracking-wider"
           >
-            v15.4 • Running
+            v0.1 • Running
           </p>
         </div>
       </div>
@@ -47,12 +45,12 @@ const handleLogout = async () => {
           "
         >
           <span class="material-symbols-outlined text-[1.25rem]">database</span>
-          <span class="text-sm">Databases</span>
+          <span class="text-sm font-medium">Databases</span>
         </RouterLink>
 
         <RouterLink
           to="/"
-          class="flex items-center gap-3 px-3 py-2.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-md transition-all duration-200 group"
+          class="flex items-center gap-3 px-3 py-2.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-md transition-all duration-200 group disabled"
         >
           <span class="material-symbols-outlined text-[1.25rem] group-hover:text-primary"
             >terminal</span
@@ -110,7 +108,7 @@ const handleLogout = async () => {
         class="h-16 sticky top-0 z-40 bg-surface-container-low flex justify-between items-center px-8"
       >
         <div class="flex items-center gap-8">
-          <h1 class="text-lg font-bold tracking-tighter text-on-surface">Dashgresql</h1>
+          <!-- <h1 class="text-lg font-bold tracking-tighter text-on-surface">Dashgresql</h1>
           <div class="relative w-96">
             <span
               class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm"
@@ -121,7 +119,7 @@ const handleLogout = async () => {
               placeholder="Search resources..."
               type="text"
             />
-          </div>
+          </div> -->
         </div>
 
         <div class="flex items-center gap-4">
