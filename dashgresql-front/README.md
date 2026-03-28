@@ -1,4 +1,4 @@
-# ./
+# .
 
 This template should help get you started developing with Vue 3 in Vite.
 
@@ -31,7 +31,7 @@ pnpm install
 pnpm dev
 ```
 
-### Compile and Minify for Production
+### Compile and Minify for  
 
 ```sh
 pnpm build
