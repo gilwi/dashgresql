@@ -45,6 +45,10 @@ def create_app(config_class=Config):
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
 
+    from .databases import databases_bp
+
+    app.register_blueprint(databases_bp, url_prefix="/api/databases")
+
     # --- Custom Command: Reset Database ---
     @app.cli.command("reset-db")
     def reset_db():
@@ -70,6 +74,15 @@ def create_app(config_class=Config):
         print(f"Creating user: {name}")
         u = models.User(username=name)
         u.set_password("test")
+        db1 = Database(name="ecommerce")
+        db2 = Database(name="hr")
+        db3 = Database(
+            name="analytics",
+            host="localhost",
+            port=5433,
+            db_user="admin",
+            password="password",
+        )
         db.session.add(u)
         db.session.commit()
 

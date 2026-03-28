@@ -3,6 +3,7 @@ import { useAuthStore } from '@/stores/auth'
 import DashboardLayout from '../layouts/DashboardLayout.vue'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
+// import SchemasView from '../views/SchemasView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -13,15 +14,6 @@ const router = createRouter({
       component: LoginView,
     },
     {
-      path: '/logout',
-      name: 'logout',
-      beforeEnter: async (to, from, next) => {
-        const auth = useAuthStore()
-        await auth.logout()
-        next({ name: 'login' })
-      },
-    },
-    {
       path: '/',
       name: 'home',
       component: DashboardLayout,
@@ -30,6 +22,11 @@ const router = createRouter({
         {
           path: '',
           component: HomeView,
+        },
+        {
+          path: 'schemas',
+          name: 'schemas',
+          component: () => import('../views/SchemasView.vue'),
         },
       ],
     },

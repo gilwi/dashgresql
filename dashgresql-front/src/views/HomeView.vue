@@ -1,68 +1,54 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import BaseModal from '../components/BaseModal.vue'
+import api from '@/api'
 
-// --- State Management ---
 const isModalOpen = ref(false)
-const newDb = ref({ name: '', type: 'terminal' })
-
-// Mock Data Store
-const databases = ref([
-  {
-    id: 'db-0192-8491',
-    name: 'production_db',
-    status: 'Active',
-    connections: 84,
-    maxConnections: 150,
-    size: '412.5 GB',
-    lastBackup: '2 hours ago',
-    type: 'terminal',
-  },
-  {
-    id: 'db-0294-1182',
-    name: 'analytics_master',
-    status: 'Idle',
-    connections: 12,
-    maxConnections: 500,
-    size: '892.1 GB',
-    lastBackup: '6 hours ago',
-    type: 'storage',
-  },
-  {
-    id: 'db-8821-4402',
-    name: 'staging_db',
-    status: 'Active',
-    connections: 46,
-    maxConnections: 100,
-    size: '45.0 GB',
-    lastBackup: 'Just now',
-    type: 'science',
-  },
-])
-
-// --- Logic ---
-const handleAddDatabase = () => {
-  if (!newDb.value.name) return
-
-  databases.value.push({
-    id: `db-${Math.floor(Math.random() * 9000) + 1000}`,
-    name: newDb.value.name,
-    status: 'Active',
-    connections: 0,
-    maxConnections: 100,
-    size: '0 GB',
-    lastBackup: 'Just now',
-    type: newDb.value.type,
-  })
-
-  // Reset UI
-  newDb.value = { name: '', type: 'terminal' }
-  isModalOpen.value = false
-
-  // Mock Traffic Data (Heights in percentage)
-}
+const newDb = ref({
+  name: '',
+  host: '',
+  port: 5432,
+  db_user: '',
+  password: '',
+  pg_version: '16',
+  max_connections: 100,
+})
+const databases = ref([])
+const isSubmitting = ref(false)
+const formError = ref('')
 
 const trafficBars = ref([40, 60, 35, 80, 45, 70, 55, 90, 30, 50, 40, 25, 100, 75, 50, 85, 30])
+
+// Fetch all databases on mount
+onMounted(async () => {
+  const res = await api.get('/api/databases/')
+  databases.value = res.data
+})
+
+const handleAddDatabase = async () => {
+  if (!newDb.value.name) return
+  formError.value = ''
+  isSubmitting.value = true
+
+  try {
+    const res = await api.post('/api/databases/', {
+      name: newDb.value.name,
+      pg_version: newDb.value.pg_version,
+      max_connections: newDb.value.max_connections,
+      host: newDb.value.host,
+      db_user: newDb.value.db_user,
+      password: newDb.value.password,
+    })
+
+    databases.value.push(res.data)
+    newDb.value = { name: '', pg_version: '16', max_connections: 100 }
+    isModalOpen.value = false
+  } catch (err) {
+    formError.value = err.response?.data?.error ?? 'Failed to create database'
+  } finally {
+    isSubmitting.value = false
+  }
+}
 
 const getStatusColor = (status) => {
   return status === 'Active' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'bg-blue-400'
@@ -320,7 +306,7 @@ const getStatusColor = (status) => {
     <form @submit.prevent="handleAddDatabase" class="space-y-6">
       <div class="space-y-2">
         <label class="text-[0.65rem] font-bold text-on-surface-variant uppercase tracking-widest"
-          >Database Identity</label
+          >Database Name</label
         >
         <input
           v-model="newDb.name"
@@ -331,26 +317,99 @@ const getStatusColor = (status) => {
         />
       </div>
 
+      <!-- Host + Port side by side -->
+      <div class="flex gap-3">
+        <div class="space-y-2 flex-1">
+          <label class="text-[0.65rem] font-bold text-on-surface-variant uppercase tracking-widest"
+            >Host</label
+          >
+          <input
+            v-model="newDb.host"
+            type="text"
+            placeholder="e.g. db.example.com"
+            class="w-full h-12 px-4 bg-surface-container-lowest rounded-xl outline-1 outline-outline-variant/20 focus:outline-primary focus:ring-8 focus:ring-primary/5 transition-all placeholder:text-surface-dim"
+            required
+          />
+        </div>
+        <div class="space-y-2 w-28">
+          <label class="text-[0.65rem] font-bold text-on-surface-variant uppercase tracking-widest"
+            >Port</label
+          >
+          <input
+            v-model.number="newDb.port"
+            type="number"
+            placeholder="5432"
+            class="w-full h-12 px-4 bg-surface-container-lowest rounded-xl outline-1 outline-outline-variant/20 focus:outline-primary focus:ring-8 focus:ring-primary/5 transition-all placeholder:text-surface-dim"
+            required
+          />
+        </div>
+      </div>
+
       <div class="space-y-2">
         <label class="text-[0.65rem] font-bold text-on-surface-variant uppercase tracking-widest"
-          >Architecture Type</label
+          >DB User</label
+        >
+        <input
+          v-model="newDb.db_user"
+          type="text"
+          placeholder="e.g. postgres"
+          class="w-full h-12 px-4 bg-surface-container-lowest rounded-xl outline-1 outline-outline-variant/20 focus:outline-primary focus:ring-8 focus:ring-primary/5 transition-all placeholder:text-surface-dim"
+          required
+        />
+      </div>
+
+      <div class="space-y-2">
+        <label class="text-[0.65rem] font-bold text-on-surface-variant uppercase tracking-widest"
+          >Password</label
+        >
+        <input
+          v-model="newDb.password"
+          type="password"
+          placeholder="••••••••"
+          class="w-full h-12 px-4 bg-surface-container-lowest rounded-xl outline-1 outline-outline-variant/20 focus:outline-primary focus:ring-8 focus:ring-primary/5 transition-all placeholder:text-surface-dim"
+          required
+        />
+      </div>
+
+      <div class="space-y-2">
+        <label class="text-[0.65rem] font-bold text-on-surface-variant uppercase tracking-widest"
+          >PostgreSQL Version</label
         >
         <select
-          v-model="newDb.type"
+          v-model="newDb.pg_version"
           class="w-full h-12 px-4 bg-surface-container-lowest rounded-xl outline-1 outline-outline-variant/20 focus:outline-primary outline-none"
         >
-          <option value="terminal">Standard Instance</option>
-          <option value="storage">Data Warehouse</option>
-          <option value="science">Experimental/Staging</option>
+          <option value="14">PostgreSQL 14</option>
+          <option value="15">PostgreSQL 15</option>
+          <option value="16">PostgreSQL 16</option>
+          <option value="17">PostgreSQL 17</option>
         </select>
       </div>
+
+      <div class="space-y-2">
+        <label class="text-[0.65rem] font-bold text-on-surface-variant uppercase tracking-widest"
+          >Max Connections</label
+        >
+        <input
+          v-model.number="newDb.max_connections"
+          type="number"
+          min="10"
+          max="10000"
+          placeholder="100"
+          class="w-full h-12 px-4 bg-surface-container-lowest rounded-xl outline-1 outline-outline-variant/20 focus:outline-primary focus:ring-8 focus:ring-primary/5 transition-all placeholder:text-surface-dim"
+          required
+        />
+      </div>
+
+      <p v-if="formError" class="text-sm text-red-400 text-center">{{ formError }}</p>
 
       <div class="pt-4">
         <button
           type="submit"
-          class="w-full h-12 btn-primary-gradient text-on-primary font-bold rounded-xl shadow-ambient transition-transform active:scale-95"
+          :disabled="isSubmitting"
+          class="w-full h-12 bg-primary text-on-primary font-bold rounded-xl shadow-ambient transition-transform active:scale-95 disabled:opacity-50"
         >
-          Provision Resource
+          {{ isSubmitting ? 'Provisioning...' : 'Provision Resource' }}
         </button>
       </div>
     </form>

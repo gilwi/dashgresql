@@ -1,10 +1,13 @@
 <script setup>
 import { RouterView, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+
+const auth = useAuthStore()
 const router = useRouter()
 
-const logout = () => {
-  localStorage.removeItem('dashgresql_auth')
-  router.push('/login')
+const handleLogout = async () => {
+  await auth.logout()
+  router.push({ name: 'login' })
 }
 </script>
 
@@ -58,12 +61,15 @@ const logout = () => {
         </RouterLink>
 
         <RouterLink
-          to="/"
-          class="flex items-center gap-3 px-3 py-2.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-md transition-all duration-200 group"
+          to="/schemas"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-200"
+          :class="
+            $route.path === '/schemas'
+              ? 'text-primary font-bold bg-surface-container-lowest shadow-sm'
+              : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'
+          "
         >
-          <span class="material-symbols-outlined text-[1.25rem] group-hover:text-primary"
-            >schema</span
-          >
+          <span class="material-symbols-outlined text-[1.25rem]">schema</span>
           <span class="text-sm font-medium">Schemas</span>
         </RouterLink>
 
@@ -96,13 +102,6 @@ const logout = () => {
           <span class="material-symbols-outlined text-[1rem]">help</span>
           <span>Docs</span>
         </a>
-        <RouterLink
-          to="/logout"
-          class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-error hover:bg-error-container/10 rounded-md transition-all text-xs font-bold uppercase tracking-wider"
-        >
-          <span class="material-symbols-outlined text-[1rem]">logout</span>
-          <span>Terminate</span>
-        </RouterLink>
       </div>
     </aside>
 
@@ -139,7 +138,7 @@ const logout = () => {
               <span class="material-symbols-outlined text-on-surface-variant">person</span>
             </div>
             <button
-              @click="logout"
+              @click="handleLogout"
               class="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/10 rounded-full transition-colors"
               title="Logout"
             >
