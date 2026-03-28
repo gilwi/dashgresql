@@ -50,7 +50,7 @@ const handleLogout = async () => {
 
         <RouterLink
           to="/"
-          class="flex items-center gap-3 px-3 py-2.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-md transition-all duration-200 group disabled"
+          class="flex items-center gap-3 px-3 py-2.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-md transition-all duration-200 group"
         >
           <span class="material-symbols-outlined text-[1.25rem] group-hover:text-primary"
             >terminal</span
