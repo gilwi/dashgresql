@@ -4,11 +4,11 @@ from logging.handlers import RotatingFileHandler, SMTPHandler
 
 import click
 from flask import Flask
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from flask_jwt_extended import JWTManager
-from flask_cors import CORS
 
 from config import Config
 
@@ -74,16 +74,55 @@ def create_app(config_class=Config):
         print(f"Creating user: {name}")
         u = models.User(username=name)
         u.set_password("test")
-        db1 = Database(name="ecommerce")
-        db2 = Database(name="hr")
-        db3 = Database(
-            name="analytics",
+        db.session.add(u)
+        db.session.commit()
+
+    # -----------------------------------------
+    # --- Custom Command: Create test data ---
+    @app.cli.command("create-test-data")
+    @click.argument("name", default="lwi")
+    def create_test_data(name):
+        """Create a new user example."""
+        # You can access your database models here because
+        # 'db' and 'models' are imported in this file.
+        from app import models  # Local import to avoid circular issues
+
+        print(f"Creating user: {name}")
+        u = models.User(username=name)
+        u.set_password("test")
+
+        print(f"Creating test databases")
+        db1 = models.Database(
+            name="ecommerce",
             host="localhost",
             port=5433,
             db_user="admin",
-            password="password",
+            password="admin123",
+            pg_version="16",
+            owner_id="1",
+        )
+        db2 = models.Database(
+            name="hr",
+            host="localhost",
+            port=5434,
+            db_user="admin",
+            password="admin123",
+            pg_version="16",
+            owner_id="1",
+        )
+        db3 = models.Database(
+            name="analytics",
+            host="localhost",
+            port=5435,
+            db_user="admin",
+            password="admin123",
+            pg_version="16",
+            owner_id="1",
         )
         db.session.add(u)
+        db.session.add(db1)
+        db.session.add(db2)
+        db.session.add(db3)
         db.session.commit()
 
     # -----------------------------------------

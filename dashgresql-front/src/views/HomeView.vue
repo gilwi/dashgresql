@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import BaseModal from '../components/BaseModal.vue'
 import api from '@/api'
 
@@ -19,11 +19,61 @@ const formError = ref('')
 
 const trafficBars = ref([40, 60, 35, 80, 45, 70, 55, 90, 30, 50, 40, 25, 100, 75, 50, 85, 30])
 
+const isChecking = ref(false)
+
 // Fetch all databases on mount
 onMounted(async () => {
   const res = await api.get('/api/databases/')
   databases.value = res.data
+  await checkAllConnections()
 })
+
+// Check all connections at once
+const checkAllConnections = async () => {
+  isChecking.value = true
+  try {
+    const res = await api.get('/api/databases/check-all')
+    const results = res.data
+
+    // Merge status + connection_count into each database
+    databases.value = databases.value.map((db) => ({
+      ...db,
+      status: results[db.id]?.status ?? 'Unknown',
+      connection_count: results[db.id]?.connection_count ?? 0,
+      size: results[db.id]?.size ?? db.size, // fall back to stored value
+      error: results[db.id]?.error ?? null,
+    }))
+  } catch (err) {
+    console.error('Failed to check connections:', err)
+  } finally {
+    isChecking.value = false
+  }
+}
+
+// Check a single database (for the per-row refresh button)
+const checkConnection = async (dbId) => {
+  const target = databases.value.find((d) => d.id === dbId)
+  if (target) target.checking = true
+
+  try {
+    const res = await api.get(`/api/databases/${dbId}/check`)
+    databases.value = databases.value.map((d) =>
+      d.id === dbId
+        ? {
+            ...d,
+            status: res.data.status,
+            connection_count: res.data.connection_count,
+            size: res.data.size ?? d.size, // fall back to stored value
+            error: res.data.error,
+            checking: false,
+          }
+        : d,
+    )
+  } catch (err) {
+    console.error('Check failed:', err)
+    if (target) target.checking = false
+  }
+}
 
 const handleAddDatabase = async () => {
   if (!newDb.value.name) return
@@ -51,8 +101,42 @@ const handleAddDatabase = async () => {
 }
 
 const getStatusColor = (status) => {
-  return status === 'Active' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'bg-blue-400'
+  const colors = {
+    Active: 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]',
+    Idle: 'bg-blue-400',
+    Unreachable: 'bg-red-500',
+    Error: 'bg-yellow-500',
+    Unknown: 'bg-surface-dim',
+  }
+  return colors[status] ?? 'bg-surface-dim'
 }
+
+const totalStorage = computed(() => {
+  const toBytes = (sizeStr) => {
+    if (!sizeStr) return 0
+    const units = { bytes: 1, kb: 1024, mb: 1024 ** 2, gb: 1024 ** 3, tb: 1024 ** 4 }
+    const match = sizeStr.toLowerCase().match(/^([\d.]+)\s*(\w+)$/)
+    if (!match) return 0
+    const value = parseFloat(match[1])
+    const unit = match[2].replace(/s$/, '') // normalize 'bytes' → 'byte', etc.
+    return value * (units[unit] ?? 1)
+  }
+
+  const toHuman = (bytes) => {
+    if (bytes >= 1024 ** 4) return `${(bytes / 1024 ** 4).toFixed(1)} TB`
+    if (bytes >= 1024 ** 3) return `${(bytes / 1024 ** 3).toFixed(1)} GB`
+    if (bytes >= 1024 ** 2) return `${(bytes / 1024 ** 2).toFixed(1)} MB`
+    if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KB`
+    return `${bytes} bytes`
+  }
+
+  const totalBytes = databases.value.reduce((sum, db) => sum + toBytes(db.size), 0)
+  return toHuman(totalBytes)
+})
+
+// Split into value and unit for display (e.g. "1.4" and "TB")
+const totalStorageValue = computed(() => totalStorage.value.split(' ')[0])
+const totalStorageUnit = computed(() => totalStorage.value.split(' ')[1])
 </script>
 
 <template>
@@ -87,8 +171,12 @@ const getStatusColor = (status) => {
         Total Storage
       </p>
       <div class="flex items-end gap-2">
-        <span class="text-3xl font-black text-on-surface tracking-tighter">1.4</span>
-        <span class="text-sm font-bold text-on-surface-variant mb-1">TB</span>
+        <span class="text-3xl font-black text-on-surface tracking-tighter">
+          {{ totalStorageValue }}
+        </span>
+        <span class="text-sm font-bold text-on-surface-variant mb-1">
+          {{ totalStorageUnit }}
+        </span>
       </div>
       <div class="mt-5 h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
         <div class="h-full bg-primary w-[65%] group-hover:bg-primary-dim transition-colors"></div>
@@ -167,14 +255,19 @@ const getStatusColor = (status) => {
           Development
         </button>
       </div>
-      <div
-        class="flex items-center gap-2 text-on-surface-variant text-[0.65rem] font-bold uppercase tracking-widest"
-      >
-        <span>Sort by:</span>
+      <div class="flex items-center gap-3">
+        <span class="text-on-surface-variant text-[0.65rem] font-bold uppercase tracking-widest">
+          {{ isChecking ? 'Checking...' : 'Last checked just now' }}
+        </span>
         <button
-          class="flex items-center gap-1 text-on-surface font-black hover:text-primary transition-colors"
+          @click="checkAllConnections"
+          :disabled="isChecking"
+          class="flex items-center gap-1.5 px-4 py-2 bg-surface-container-high hover:bg-surface-container-highest rounded-full text-[0.65rem] font-black uppercase tracking-wider transition-all disabled:opacity-50"
         >
-          Size <span class="material-symbols-outlined text-[1rem]">expand_more</span>
+          <span class="material-symbols-outlined text-sm" :class="{ 'animate-spin': isChecking }">
+            refresh
+          </span>
+          Refresh
         </button>
       </div>
     </div>
@@ -240,7 +333,16 @@ const getStatusColor = (status) => {
                   class="w-2.5 h-2.5 rounded-full transition-transform group-hover:scale-125"
                   :class="getStatusColor(db.status)"
                 ></span>
-                <span class="text-sm font-bold text-on-surface">{{ db.status }}</span>
+                <div>
+                  <span class="text-sm font-bold text-on-surface">{{ db.status }}</span>
+                  <p
+                    v-if="db.error"
+                    class="text-[0.6rem] text-red-400 font-mono mt-0.5 max-w-[160px] truncate"
+                    :title="db.error"
+                  >
+                    {{ db.error }}
+                  </p>
+                </div>
               </div>
             </td>
             <td class="px-6 py-6">
@@ -259,11 +361,26 @@ const getStatusColor = (status) => {
               {{ db.lastBackup }}
             </td>
             <td class="px-10 py-6 text-right">
-              <button
-                class="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-surface-container-highest rounded-lg"
+              <div
+                class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
               >
-                <span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
-              </button>
+                <button
+                  @click="checkConnection(db.id)"
+                  :disabled="db.checking"
+                  class="p-2 hover:bg-surface-container-highest rounded-lg"
+                  title="Check connection"
+                >
+                  <span
+                    class="material-symbols-outlined text-on-surface-variant text-sm"
+                    :class="{ 'animate-spin': db.checking }"
+                  >
+                    wifi_tethering
+                  </span>
+                </button>
+                <button class="p-2 hover:bg-surface-container-highest rounded-lg">
+                  <span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>

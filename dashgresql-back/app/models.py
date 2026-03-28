@@ -1,10 +1,11 @@
-from flask_login import UserMixin
-from werkzeug.security import check_password_hash, generate_password_hash
 import uuid
 from datetime import datetime, timezone
 
+from flask_login import UserMixin
+from werkzeug.security import check_password_hash, generate_password_hash
+
 from app import db, login
-from app.crypto import encrypt_password, decrypt_password
+from app.crypto import decrypt_password, encrypt_password
 
 
 class User(UserMixin, db.Model):
