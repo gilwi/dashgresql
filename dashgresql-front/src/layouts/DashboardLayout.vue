@@ -33,15 +33,77 @@ const logout = () => {
         </div>
       </div>
 
-      <nav class="flex-1 space-y-1">
+      <nav class="flex-1 space-y-1 px-4">
+        <RouterLink
+          to="/"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-200"
+          :class="
+            $route.path === '/'
+              ? 'text-primary font-bold bg-surface-container-lowest shadow-sm'
+              : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'
+          "
+        >
+          <span class="material-symbols-outlined text-[1.25rem]">database</span>
+          <span class="text-sm">Databases</span>
+        </RouterLink>
+
+        <RouterLink
+          to="/"
+          class="flex items-center gap-3 px-3 py-2.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-md transition-all duration-200 group"
+        >
+          <span class="material-symbols-outlined text-[1.25rem] group-hover:text-primary"
+            >terminal</span
+          >
+          <span class="text-sm font-medium">Query Console</span>
+        </RouterLink>
+
+        <RouterLink
+          to="/"
+          class="flex items-center gap-3 px-3 py-2.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-md transition-all duration-200 group"
+        >
+          <span class="material-symbols-outlined text-[1.25rem] group-hover:text-primary"
+            >schema</span
+          >
+          <span class="text-sm font-medium">Schemas</span>
+        </RouterLink>
+
+        <RouterLink
+          to="/"
+          class="flex items-center gap-3 px-3 py-2.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-md transition-all duration-200 group"
+        >
+          <span class="material-symbols-outlined text-[1.25rem] group-hover:text-primary"
+            >sync_alt</span
+          >
+          <span class="text-sm font-medium">Replication</span>
+        </RouterLink>
+
+        <RouterLink
+          to="/"
+          class="flex items-center gap-3 px-3 py-2.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-md transition-all duration-200 group"
+        >
+          <span class="material-symbols-outlined text-[1.25rem] group-hover:text-primary"
+            >list_alt</span
+          >
+          <span class="text-sm font-medium">Logs</span>
+        </RouterLink>
+      </nav>
+
+      <div class="mt-auto pt-4 border-t border-surface-variant/20 px-4 pb-6 space-y-1">
         <a
           href="#"
-          class="flex items-center gap-3 px-3 py-2.5 text-primary font-bold bg-surface-container-lowest rounded-md shadow-sm transition-all"
+          class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-md transition-all text-xs font-bold uppercase tracking-wider"
         >
-          <span class="material-symbols-outlined">database</span>
-          <span>Databases</span>
+          <span class="material-symbols-outlined text-[1rem]">help</span>
+          <span>Docs</span>
         </a>
-      </nav>
+        <RouterLink
+          to="/logout"
+          class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-error hover:bg-error-container/10 rounded-md transition-all text-xs font-bold uppercase tracking-wider"
+        >
+          <span class="material-symbols-outlined text-[1rem]">logout</span>
+          <span>Terminate</span>
+        </RouterLink>
+      </div>
     </aside>
 
     <main class="ml-64 min-h-screen flex flex-col">
