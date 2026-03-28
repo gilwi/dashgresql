@@ -1,20 +1,27 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const auth = useAuthStore()
+
 const username = ref('')
 const password = ref('')
 const isLoading = ref(false)
+const error = ref('')
 
-const handleLogin = () => {
+const handleLogin = async () => {
+  error.value = ''
   isLoading.value = true
-  // Mocking the auth delay
-  setTimeout(() => {
-    localStorage.setItem('dashgresql_auth', 'true')
+  try {
+    await auth.login(username.value, password.value)
     router.push('/')
+  } catch (err) {
+    error.value = err.response?.data?.error ?? 'Authentication failed'
+  } finally {
     isLoading.value = false
-  }, 800)
+  }
 }
 </script>
 
@@ -27,7 +34,6 @@ const handleLogin = () => {
         <h1 class="text-display-sm font-bold tracking-tighter text-primary mb-2">dashgresql</h1>
         <p class="text-on-surface-variant text-sm uppercase tracking-widest">The Data Architect</p>
       </header>
-
       <form @submit.prevent="handleLogin" class="space-y-8">
         <div class="space-y-2">
           <label class="text-label-md text-on-surface-variant px-1">Architect Username</label>
@@ -39,7 +45,6 @@ const handleLogin = () => {
             required
           />
         </div>
-
         <div class="space-y-2">
           <label class="text-label-md text-on-surface-variant px-1">Access Key</label>
           <input
@@ -51,15 +56,19 @@ const handleLogin = () => {
           />
         </div>
 
+        <!-- Error message -->
+        <p v-if="error" class="text-sm text-red-400 text-center -mt-4">
+          {{ error }}
+        </p>
+
         <button
           type="submit"
           :disabled="isLoading"
-          class="w-full h-12 btn-primary-gradient text-on-primary font-bold rounded-md shadow-ambient hover:scale-[1.02] active:scale-95 transition-transform disabled:opacity-50"
+          class="w-full h-12 bg-primary text-on-primary font-bold rounded-md shadow-ambient hover:scale-[1.02] active:scale-95 transition-transform disabled:opacity-50"
         >
           {{ isLoading ? 'Authenticating...' : 'Enter Workspace' }}
         </button>
       </form>
-
       <footer class="mt-12 text-center">
         <p class="text-label-md text-outline-variant uppercase tracking-tighter">
           Secure Session • PostgreSQL 16+

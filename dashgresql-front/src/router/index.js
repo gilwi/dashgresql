@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import DashboardLayout from '../layouts/DashboardLayout.vue'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
@@ -14,21 +15,20 @@ const router = createRouter({
     {
       path: '/logout',
       name: 'logout',
-      beforeEnter: (to, from, next) => {
-        // Clear the mock auth token
-        localStorage.removeItem('dashgresql_auth')
-        // Redirect to login
+      beforeEnter: async (to, from, next) => {
+        const auth = useAuthStore()
+        await auth.logout()
         next({ name: 'login' })
       },
     },
     {
       path: '/',
       name: 'home',
-      component: DashboardLayout, // Use the layout as the parent
+      component: DashboardLayout,
       meta: { requiresAuth: true },
       children: [
         {
-          path: '', // This handles the "/" URL
+          path: '',
           component: HomeView,
         },
       ],
@@ -36,20 +36,28 @@ const router = createRouter({
     {
       path: '/about',
       name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue'),
     },
   ],
 })
 
-router.beforeEach((to, from, next) => {
-  const isAuthenticated = localStorage.getItem('dashgresql_auth') === 'true'
+router.beforeEach(async (to, from, next) => {
+  const auth = useAuthStore()
 
-  if (to.meta.requiresAuth && !isAuthenticated) {
+  // On first load, restore user info if a token exists in sessionStorage
+  if (auth.isAuthenticated && !auth.user) {
+    try {
+      await auth.fetchUser()
+    } catch {
+      // Token is invalid or expired — clean up and send to login
+      await auth.logout()
+      return next({ name: 'login' })
+    }
+  }
+
+  if (to.meta.requiresAuth && !auth.isAuthenticated) {
     next({ name: 'login' })
-  } else if (to.name === 'login' && isAuthenticated) {
+  } else if (to.name === 'login' && auth.isAuthenticated) {
     next({ name: 'home' })
   } else {
     next()
