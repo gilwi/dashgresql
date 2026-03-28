@@ -59,7 +59,7 @@ SELECT
     (500 + random() * 800)::INT,
     (120 + random() * 240)::INT,
     (1000 + random() * 4000)::NUMERIC(10,2)
-FROM generate_series(1, 30) AS n,
+FROM generate_series(1, 3000) AS n,
      (VALUES (1), (2), (3)) AS apps(app_id);
 
 -- Funnel data — signup funnel
@@ -87,4 +87,4 @@ SELECT
     (ARRAY['desktop','mobile','tablet'])[floor(random()*3+1)],
     jsonb_build_object('value', (random()*200)::NUMERIC(6,2)),
     NOW() - (random() * INTERVAL '30 days')
-FROM generate_series(1, 500);
+FROM generate_series(1, 5000000);

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import BaseModal from '../components/BaseModal.vue'
 import api from '@/api'
 
@@ -21,11 +21,21 @@ const trafficBars = ref([40, 60, 35, 80, 45, 70, 55, 90, 30, 50, 40, 25, 100, 75
 
 const isChecking = ref(false)
 
-// Fetch all databases on mount
+const POLL_INTERVAL_MS = 60_000
+let pollTimer = null
+
 onMounted(async () => {
   const res = await api.get('/api/databases/')
   databases.value = res.data
   await checkAllConnections()
+
+  // Start polling
+  pollTimer = setInterval(checkAllConnections, POLL_INTERVAL_MS)
+})
+
+// Clean up on leave so the interval doesn't keep running in the background
+onUnmounted(() => {
+  clearInterval(pollTimer)
 })
 
 // Check all connections at once
@@ -137,6 +147,20 @@ const totalStorage = computed(() => {
 // Split into value and unit for display (e.g. "1.4" and "TB")
 const totalStorageValue = computed(() => totalStorage.value.split(' ')[0])
 const totalStorageUnit = computed(() => totalStorage.value.split(' ')[1])
+
+const totalConnections = computed(() =>
+  databases.value.reduce((sum, db) => sum + (db.connection_count ?? 0), 0),
+)
+
+const totalMaxConnections = computed(() =>
+  databases.value.reduce((sum, db) => sum + (db.max_connections ?? 0), 0),
+)
+
+const connectionRatio = computed(() =>
+  totalMaxConnections.value > 0
+    ? Math.min(totalConnections.value / totalMaxConnections.value, 1)
+    : 0,
+)
 </script>
 
 <template>
@@ -192,13 +216,21 @@ const totalStorageUnit = computed(() => totalStorage.value.split(' ')[1])
         Active Connections
       </p>
       <div class="flex items-end gap-2">
-        <span class="text-3xl font-black text-on-surface tracking-tighter">142</span>
-        <span class="text-xs font-bold text-on-surface-variant mb-1">/ 500</span>
+        <span class="text-3xl font-black text-on-surface tracking-tighter">
+          {{ totalConnections }}
+        </span>
+        <span class="text-xs font-bold text-on-surface-variant mb-1">
+          / {{ totalMaxConnections }}
+        </span>
       </div>
+
       <div class="mt-5 flex gap-1.5">
-        <span class="h-1.5 flex-1 bg-primary rounded-full"></span>
-        <span class="h-1.5 flex-1 bg-primary rounded-full"></span>
-        <span v-for="i in 3" :key="i" class="h-1.5 flex-1 bg-primary/20 rounded-full"></span>
+        <div class="w-full h-1.5 bg-primary/20 rounded-full overflow-hidden">
+          <div
+            class="h-full bg-primary rounded-full transition-all duration-500"
+            :style="{ width: connectionRatio * 100 + '%' }"
+          ></div>
+        </div>
       </div>
     </div>
 
@@ -315,7 +347,8 @@ const totalStorageUnit = computed(() => totalStorage.value.split(' ')[1])
                 <div
                   class="w-10 h-10 rounded-xl bg-primary-container/40 text-primary flex items-center justify-center"
                 >
-                  <span class="material-symbols-outlined text-xl">{{ db.type }}</span>
+                  <span class="material-symbols-outlined text-xl">database</span>
+                  <!-- <span class="material-symbols-outlined text-xl">{{ db.type }}</span> -->
                 </div>
                 <div>
                   <div class="font-bold text-on-surface text-base">{{ db.name }}</div>
@@ -347,12 +380,15 @@ const totalStorageUnit = computed(() => totalStorage.value.split(' ')[1])
             </td>
             <td class="px-6 py-6">
               <div class="text-sm font-bold text-on-surface">
-                {{ db.connections }} <span class="opacity-40 font-medium">clients</span>
+                {{ db.connection_count }}
+                <span class="opacity-40 font-medium">clients</span>
               </div>
               <div class="w-24 h-1 bg-surface-container rounded-full mt-2 overflow-hidden">
                 <div
-                  class="h-full bg-primary rounded-full"
-                  :style="{ width: (db.connections / db.maxConnections) * 100 + '%' }"
+                  class="h-full bg-primary rounded-full transition-all duration-500"
+                  :style="{
+                    width: Math.min((db.connection_count / db.max_connections) * 100, 100) + '%',
+                  }"
                 ></div>
               </div>
             </td>
@@ -374,7 +410,7 @@ const totalStorageUnit = computed(() => totalStorage.value.split(' ')[1])
                     class="material-symbols-outlined text-on-surface-variant text-sm"
                     :class="{ 'animate-spin': db.checking }"
                   >
-                    wifi_tethering
+                    refresh
                   </span>
                 </button>
                 <button class="p-2 hover:bg-surface-container-highest rounded-lg">
