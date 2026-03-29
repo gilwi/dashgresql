@@ -14,8 +14,9 @@ services:
       FLASK_DEBUG: 1
       SECRET_KEY: ${SECRET_KEY:-dev-secret-change-me}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-dev-jwt-secret-change-me}
-      DB_ENCRYPTION_KEY: ${DB_ENCRYPTION_KEY}
+      # DB_ENCRYPTION_KEY: ${DB_ENCRYPTION_KEY}
       DATABASE_URL: ${DATABASE_URL:-sqlite:///app.db}
+      CORS_ORIGINS: ${CORS_ORIGINS}
     ports:
       - "5000:5000"
     depends_on:
@@ -36,7 +37,7 @@ services:
     container_name: dashgresql_front
     restart: unless-stopped
     environment:
-      VITE_API_URL: /api
+      VITE_API_URL: http://localhost:5000
     ports:
       - "5173:5173"
     depends_on:
