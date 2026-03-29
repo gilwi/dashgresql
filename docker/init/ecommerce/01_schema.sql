@@ -1,15 +1,15 @@
 -- ============================================================
 -- E-COMMERCE DATABASE
 -- ============================================================
-
-CREATE TABLE categories (
+CREATE SCHEMA app;
+CREATE TABLE app.categories (
     id          SERIAL PRIMARY KEY,
     name        VARCHAR(100) NOT NULL,
     description TEXT,
     created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE products (
+CREATE TABLE app.products (
     id          SERIAL PRIMARY KEY,
     category_id INT REFERENCES categories(id),
     name        VARCHAR(200) NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE products (
     created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE customers (
+CREATE TABLE app.customers (
     id         SERIAL PRIMARY KEY,
     first_name VARCHAR(100) NOT NULL,
     last_name  VARCHAR(100) NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE customers (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE orders (
+CREATE TABLE app.orders (
     id          SERIAL PRIMARY KEY,
     customer_id INT REFERENCES customers(id),
     status      VARCHAR(50) DEFAULT 'pending',
@@ -37,7 +37,7 @@ CREATE TABLE orders (
     created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE order_items (
+CREATE TABLE app.order_items (
     id         SERIAL PRIMARY KEY,
     order_id   INT REFERENCES orders(id),
     product_id INT REFERENCES products(id),
@@ -47,14 +47,14 @@ CREATE TABLE order_items (
 
 -- ── Seed data ────────────────────────────────────────────────
 
-INSERT INTO categories (name, description) VALUES
+INSERT INTO app.categories (name, description) VALUES
     ('Electronics',  'Gadgets and devices'),
     ('Clothing',     'Apparel and accessories'),
     ('Books',        'Physical and digital books'),
     ('Home & Garden','Furniture and décor'),
     ('Sports',       'Fitness and outdoor gear');
 
-INSERT INTO products (category_id, name, sku, price, stock) VALUES
+INSERT INTO app.products (category_id, name, sku, price, stock) VALUES
     (1, 'Wireless Headphones Pro',  'EL-001', 149.99, 230),
     (1, '4K Smart TV 55"',          'EL-002', 799.00,  45),
     (1, 'Mechanical Keyboard RGB',  'EL-003',  89.99, 310),
@@ -69,7 +69,7 @@ INSERT INTO products (category_id, name, sku, price, stock) VALUES
     (5, 'Yoga Mat Premium',         'SP-001',  49.99, 350),
     (5, 'Resistance Bands Set',     'SP-002',  24.99, 700);
 
-INSERT INTO customers (first_name, last_name, email, country) VALUES
+INSERT INTO app.customers (first_name, last_name, email, country) VALUES
     ('Alice',   'Martin',   'alice@example.com',   'France'),
     ('Bob',     'Smith',    'bob@example.com',     'USA'),
     ('Clara',   'Dupont',   'clara@example.com',   'France'),
@@ -81,7 +81,7 @@ INSERT INTO customers (first_name, last_name, email, country) VALUES
     ('Ingrid',  'Svensson', 'ingrid@example.com',  'Sweden'),
     ('James',   'Brown',    'james@example.com',   'USA');
 
-INSERT INTO orders (customer_id, status, total, created_at) VALUES
+INSERT INTO app.orders (customer_id, status, total, created_at) VALUES
     (1,  'completed', 239.98, NOW() - INTERVAL '30 days'),
     (2,  'completed', 799.00, NOW() - INTERVAL '25 days'),
     (3,  'shipped',    89.99, NOW() - INTERVAL '20 days'),
@@ -96,7 +96,7 @@ INSERT INTO orders (customer_id, status, total, created_at) VALUES
     (2,  'completed',  39.99, NOW() - INTERVAL '45 days'),
     (3,  'cancelled',  69.99, NOW() - INTERVAL '50 days');
 
-INSERT INTO order_items (order_id, product_id, quantity, unit_price) VALUES
+INSERT INTO app.order_items (order_id, product_id, quantity, unit_price) VALUES
     (1,  1, 1, 149.99), (1,  3, 1, 89.99),
     (2,  2, 1, 799.00),
     (3,  3, 1, 89.99),
