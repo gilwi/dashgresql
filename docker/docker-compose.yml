@@ -1,5 +1,50 @@
 services:
   # ─────────────────────────────────────────────
+  # Backend — Flask API (dev mode)
+  # ─────────────────────────────────────────────
+  backend:
+    build:
+      context: ../dashgresql-back
+      dockerfile: ../docker/Dockerfile.back
+    container_name: dashgresql_back
+    restart: unless-stopped
+    environment:
+      FLASK_APP: dashgresql.py
+      FLASK_ENV: development
+      FLASK_DEBUG: 1
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-change-me}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-dev-jwt-secret-change-me}
+      DB_ENCRYPTION_KEY: ${DB_ENCRYPTION_KEY}
+      DATABASE_URL: ${DATABASE_URL:-sqlite:///app.db}
+    ports:
+      - "5000:5000"
+    depends_on:
+      db_ecommerce:
+        condition: service_healthy
+      db_hr:
+        condition: service_healthy
+      db_analytics:
+        condition: service_healthy
+    networks:
+      - pg_network
+      - app_network
+
+  frontend:
+    build:
+      context: ../dashgresql-front
+      dockerfile: ../docker/Dockerfile.front
+    container_name: dashgresql_front
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: /api
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - app_network
+
+  # ─────────────────────────────────────────────
   # DB 1 — E-commerce store
   # ─────────────────────────────────────────────
   db_ecommerce:
@@ -98,4 +143,6 @@ volumes:
 
 networks:
   pg_network:
+    driver: bridge
+  app_network:
     driver: bridge

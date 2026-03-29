@@ -1,16 +1,15 @@
 import logging
 import os
-from logging.handlers import RotatingFileHandler, SMTPHandler
+from logging.handlers import RotatingFileHandler
 
 import click
+from config import Config
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-
-from config import Config
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -59,7 +58,6 @@ def create_app(config_class=Config):
     # --------------------------------------
     # --- Custom Command: Create test User ---
     @app.cli.command("create-user")
-    @click.argument("name", default="lwi")
     def create_user(name):
         """Create a new user example."""
         # You can access your database models here because
@@ -75,7 +73,7 @@ def create_app(config_class=Config):
     # -----------------------------------------
     # --- Custom Command: Create test data ---
     @app.cli.command("create-test-data")
-    @click.argument("name", default="lwi")
+    @click.argument("name", default="test")
     def create_test_data(name):
         """Create a new user example."""
         # You can access your database models here because
@@ -135,8 +133,7 @@ def create_app(config_class=Config):
             )
             file_handler.setFormatter(
                 logging.Formatter(
-                    "%(asctime)s %(levelname)s: %(message)s "
-                    "[in %(pathname)s:%(lineno)d]"
+                    "%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]"
                 )
             )
             file_handler.setLevel(logging.INFO)
