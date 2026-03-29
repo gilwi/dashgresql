@@ -6,7 +6,7 @@ services:
     build:
       context: ../dashgresql-back
       dockerfile: ../docker/Dockerfile.back
-    container_name: dashgresql_back
+    container_name: dashgresql-back
     restart: unless-stopped
     environment:
       FLASK_APP: dashgresql.py
@@ -34,7 +34,7 @@ services:
     build:
       context: ../dashgresql-front
       dockerfile: ../docker/Dockerfile.front
-    container_name: dashgresql_front
+    container_name: dashgresql-front
     restart: unless-stopped
     environment:
       VITE_API_URL: http://localhost:5000
@@ -50,7 +50,7 @@ services:
   # ─────────────────────────────────────────────
   db_ecommerce:
     image: postgres:16-alpine
-    container_name: pg_ecommerce
+    container_name: pg-ecommerce
     restart: unless-stopped
     environment:
       POSTGRES_DB: ecommerce
@@ -74,7 +74,7 @@ services:
   # ─────────────────────────────────────────────
   db_hr:
     image: postgres:16-alpine
-    container_name: pg_hr
+    container_name: pg-hr
     restart: unless-stopped
     environment:
       POSTGRES_DB: hr
@@ -98,7 +98,7 @@ services:
   # ─────────────────────────────────────────────
   db_analytics:
     image: postgres:16-alpine
-    container_name: pg_analytics
+    container_name: pg-analytics
     restart: unless-stopped
     environment:
       POSTGRES_DB: analytics

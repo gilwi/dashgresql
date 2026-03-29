@@ -94,8 +94,8 @@ def create_app(config_class=Config):
         print(f"Creating test databases")
         db1 = models.Database(
             name="ecommerce",
-            host="localhost",
-            port=5433,
+            host="pg-ecommerce",
+            port=5432,
             db_user="admin",
             password="admin123",
             pg_version="16",
@@ -103,8 +103,8 @@ def create_app(config_class=Config):
         )
         db2 = models.Database(
             name="hr",
-            host="localhost",
-            port=5434,
+            host="pg-hr",
+            port=5432,
             db_user="admin",
             password="admin123",
             pg_version="16",
@@ -112,8 +112,8 @@ def create_app(config_class=Config):
         )
         db3 = models.Database(
             name="analytics",
-            host="localhost",
-            port=5435,
+            host="pg-analytics",
+            port=5432,
             db_user="admin",
             password="admin123",
             pg_version="16",

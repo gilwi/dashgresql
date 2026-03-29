@@ -2,6 +2,7 @@
 -- E-COMMERCE DATABASE
 -- ============================================================
 CREATE SCHEMA app;
+
 CREATE TABLE app.categories (
     id          SERIAL PRIMARY KEY,
     name        VARCHAR(100) NOT NULL,
@@ -11,7 +12,7 @@ CREATE TABLE app.categories (
 
 CREATE TABLE app.products (
     id          SERIAL PRIMARY KEY,
-    category_id INT REFERENCES categories(id),
+    category_id INT REFERENCES app.categories(id),
     name        VARCHAR(200) NOT NULL,
     sku         VARCHAR(50) UNIQUE NOT NULL,
     price       NUMERIC(10,2) NOT NULL,
@@ -31,7 +32,7 @@ CREATE TABLE app.customers (
 
 CREATE TABLE app.orders (
     id          SERIAL PRIMARY KEY,
-    customer_id INT REFERENCES customers(id),
+    customer_id INT REFERENCES app.customers(id),
     status      VARCHAR(50) DEFAULT 'pending',
     total       NUMERIC(10,2),
     created_at  TIMESTAMPTZ DEFAULT NOW()
@@ -39,8 +40,8 @@ CREATE TABLE app.orders (
 
 CREATE TABLE app.order_items (
     id         SERIAL PRIMARY KEY,
-    order_id   INT REFERENCES orders(id),
-    product_id INT REFERENCES products(id),
+    order_id   INT REFERENCES app.orders(id),
+    product_id INT REFERENCES app.products(id),
     quantity   INT NOT NULL,
     unit_price NUMERIC(10,2) NOT NULL
 );
@@ -48,11 +49,11 @@ CREATE TABLE app.order_items (
 -- ── Seed data ────────────────────────────────────────────────
 
 INSERT INTO app.categories (name, description) VALUES
-    ('Electronics',  'Gadgets and devices'),
-    ('Clothing',     'Apparel and accessories'),
-    ('Books',        'Physical and digital books'),
-    ('Home & Garden','Furniture and décor'),
-    ('Sports',       'Fitness and outdoor gear');
+    ('Electronics',   'Gadgets and devices'),
+    ('Clothing',      'Apparel and accessories'),
+    ('Books',         'Physical and digital books'),
+    ('Home & Garden', 'Furniture and décor'),
+    ('Sports',        'Fitness and outdoor gear');
 
 INSERT INTO app.products (category_id, name, sku, price, stock) VALUES
     (1, 'Wireless Headphones Pro',  'EL-001', 149.99, 230),
