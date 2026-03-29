@@ -3,13 +3,14 @@ import os
 from logging.handlers import RotatingFileHandler
 
 import click
-from config import Config
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+
+from config import Config
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -30,7 +31,10 @@ def create_app(config_class=Config):
     # Allow requests from your Vue dev server only
     raw_origins = os.environ.get("CORS_ORIGINS", "http://localhost:5173")
     allowed_origins = [o.strip() for o in raw_origins.split(",")]
-    CORS(app, origins=allowed_origins)
+    CORS(
+        app,
+        origins=allowed_origins,
+    )
 
     jwt.init_app(app)
 

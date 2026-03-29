@@ -1,11 +1,11 @@
 import psycopg2
-from psycopg2.extensions import quote_ident
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
+from psycopg2.extensions import quote_ident
 
 from app import db
-from app.models import Database
 from app.crypto import decrypt_password
+from app.models import Database
 from app.pg_utils import check_pg_connection
 
 databases_bp = Blueprint("databases", __name__)
