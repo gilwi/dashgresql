@@ -28,22 +28,22 @@ dashgresql/
 
 ## Prerequisites
 
-| Tool | Version | Purpose |
+| Tool | Tested version | Purpose |
 |---|---|---|
-| [uv](https://github.com/astral-sh/uv) | >= 0.4 | Python package & venv management |
-| [pnpm](https://pnpm.io) | >= 9 | Node package management |
-| Python | >= 3.11 | Backend runtime |
+| [uv](https://github.com/astral-sh/uv) | 0.11.2 | Python package & venv management |
+| Python | 3.14.3 | Backend runtime (managed by uv) |
+| [pnpm](https://pnpm.io) | 10.33.0 | Node package management |
 | Node.js | >= 20 | Frontend runtime |
 | PostgreSQL | >= 14 | Target databases (external) |
 
-Install `uv`:
+Install `uv` (also installs and manages Python for you):
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 Install `pnpm`:
 ```bash
-npm install -g pnpm
+curl -fsSL https://get.pnpm.io/install.sh | sh -
 ```
 
 ---
@@ -291,4 +291,4 @@ All subsequent requests  →  Authorization: Bearer <token>
 
 ## License
 
-MIT — All rights reserved.
+Private — All rights reserved.
