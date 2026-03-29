@@ -28,7 +28,10 @@ def create_app(config_class=Config):
     login.init_app(app)
 
     # Allow requests from your Vue dev server only
-    CORS(app, origins=["http://localhost:5173"])
+    raw_origins = os.environ.get("CORS_ORIGINS", "http://localhost:5173")
+    allowed_origins = [o.strip() for o in raw_origins.split(",")]
+    CORS(app, origins=allowed_origins)
+
     jwt.init_app(app)
 
     from .auth import auth_bp
