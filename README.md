@@ -63,12 +63,11 @@ cp dashgresql-back/.env.example dashgresql-back/.env
 
 FLASK_APP=dashgresql.py
 FLASK_ENV=development
-SECRET_KEY=change-me-use-a-random-string
-JWT_SECRET_KEY=change-me-use-another-random-string
 
 # Encryption key for stored PostgreSQL credentials
 # Generate with: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
-DB_ENCRYPTION_KEY=your-generated-fernet-key
+SECRET_KEY=change-me-use-a-random-string
+JWT_SECRET_KEY=change-me-use-another-random-string
 
 # Internal app database (SQLite for dev, PostgreSQL recommended for prod)
 DATABASE_URL=sqlite:///app.db
