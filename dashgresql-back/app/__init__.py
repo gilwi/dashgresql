@@ -41,11 +41,15 @@ def create_app(config_class=Config):
     app.register_blueprint(databases_bp, url_prefix="/api/databases")
 
     # --- Custom Command: Reset Database ---
+
     @app.cli.command("reset-db")
-    def reset_db():
+    @click.option(
+        "--force", "-f", is_flag=True, help="Force reset without confirmation"
+    )
+    def reset_db(force):
         """Drop all tables and recreate them."""
-        # Safety check: Ask the user for confirmation
-        if click.confirm(
+        # Skip confirmation if force flag is used
+        if force or click.confirm(
             "This will delete all data. Are you sure you want to reset the database?"
         ):
             db.drop_all()
