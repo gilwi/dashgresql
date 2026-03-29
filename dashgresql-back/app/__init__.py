@@ -65,6 +65,7 @@ def create_app(config_class=Config):
     # --------------------------------------
     # --- Custom Command: Create test User ---
     @app.cli.command("create-user")
+    @click.argument("name")
     def create_user(name):
         """Create a new user example."""
         # You can access your database models here because
